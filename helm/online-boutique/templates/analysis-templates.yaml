@@ -1,8 +1,9 @@
+﻿{{- if and .Values.frontend.rollout .Values.frontend.rollout.enabled }}
 apiVersion: argoproj.io/v1alpha1
 kind: AnalysisTemplate
 metadata:
   name: frontend-error-rate
-  namespace: online-boutique
+  namespace: {{ .Release.Namespace }}
 spec:
   metrics:
     - name: http-error-rate
@@ -24,7 +25,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: AnalysisTemplate
 metadata:
   name: frontend-latency
-  namespace: online-boutique
+  namespace: {{ .Release.Namespace }}
 spec:
   metrics:
     - name: p95-latency-seconds
@@ -40,3 +41,4 @@ spec:
               0.95,
               sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{exported_service="frontend"}[2m])) by (le)
             ) or on() vector(0.05)
+{{- end }}

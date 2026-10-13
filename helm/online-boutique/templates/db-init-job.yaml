@@ -1,8 +1,13 @@
-apiVersion: batch/v1
+﻿apiVersion: batch/v1
 kind: Job
 metadata:
   name: db-schema-migration-verifier
-  namespace: online-boutique
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation
 spec:
   backoffLimit: 3
   ttlSecondsAfterFinished: 600
@@ -26,7 +31,6 @@ spec:
               echo "=========================================================="
               export PGPASSWORD="$DB_PASSWORD"
               
-              # Wait for DB to be reachable
               until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME"; do
                 echo "Waiting for database to accept connections..."
                 sleep 2
