@@ -111,6 +111,9 @@ emailService:
     tag: b4abb372e0b2846bc060e2010e4de9e09450d45a
 frontend:
   create: true
+  rollout:
+    enabled: true
+    replicas: 2
   name: frontend
   image:
     tag: "b4abb372e0b2846bc060e2010e4de9e09450d45a"
