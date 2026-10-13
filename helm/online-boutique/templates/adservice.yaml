@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+﻿# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: {{ .Values.images.repository }}/{{ .Values.adService.name }}:{{ .Values.images.tag | default .Chart.AppVersion }}
+        image: {{ dig "image" "repository" .Values.images.repository .Values.adService }}/{{ .Values.adService.name }}:{{ dig "image" "tag" (.Values.images.tag | default .Chart.AppVersion) .Values.adService }}
         ports:
         - containerPort: 9555
         env:
@@ -176,3 +176,5 @@ spec:
         - "9555"
 {{- end }}
 {{- end }}
+
+

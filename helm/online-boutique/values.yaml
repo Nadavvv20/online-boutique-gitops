@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+﻿# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 # Declare variables to be passed into your templates.
 
 images:
-  repository: us-central1-docker.pkg.dev/online-boutique-ci/microservices-demo
+  repository: 965085140318.dkr.ecr.il-central-1.amazonaws.com/online-boutique
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 serviceAccounts:
@@ -103,6 +103,8 @@ emailService:
 frontend:
   create: true
   name: frontend
+  image:
+    tag: "bfffe1c548eff17e7799deb2fc43e843e82340d8"
   externalService: true
   cymbalBranding: false
   # One of: local, gcp, aws, azure, onprem, alibaba. When not set, defaults to "local" unless running in GKE, otherwise auto-sets to gcp.
@@ -197,6 +199,4 @@ cartDatabase:
 shoppingAssistantService:
   create: false
   name: shoppingassistantservice
-onlineboutique:
-  images:
-    tag: bfffe1c548eff17e7799deb2fc43e843e82340d8
+
