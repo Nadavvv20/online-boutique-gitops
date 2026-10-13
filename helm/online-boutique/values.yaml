@@ -1,4 +1,4 @@
-﻿# Copyright 2024 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 # Default values for onlineboutique.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-
 images:
   repository: 965085140318.dkr.ecr.il-central-1.amazonaws.com/online-boutique
   # Overrides the image tag whose default is the chart appVersion.
@@ -60,6 +59,8 @@ adService:
     limits:
       cpu: 300m
       memory: 300Mi
+  image:
+    tag: b4abb372e0b2846bc060e2010e4de9e09450d45a
 cartService:
   create: true
   name: cartservice
@@ -70,6 +71,8 @@ cartService:
     limits:
       cpu: 300m
       memory: 256Mi
+  image:
+    tag: b4abb372e0b2846bc060e2010e4de9e09450d45a
 checkoutService:
   create: true
   name: checkoutservice
@@ -80,6 +83,8 @@ checkoutService:
     limits:
       cpu: 200m
       memory: 128Mi
+  image:
+    tag: b4abb372e0b2846bc060e2010e4de9e09450d45a
 currencyService:
   create: true
   name: currencyservice
@@ -90,6 +95,8 @@ currencyService:
     limits:
       cpu: 200m
       memory: 256Mi
+  image:
+    tag: b4abb372e0b2846bc060e2010e4de9e09450d45a
 emailService:
   create: true
   name: emailservice
@@ -100,11 +107,13 @@ emailService:
     limits:
       cpu: 200m
       memory: 128Mi
+  image:
+    tag: b4abb372e0b2846bc060e2010e4de9e09450d45a
 frontend:
   create: true
   name: frontend
   image:
-    tag: "bfffe1c548eff17e7799deb2fc43e843e82340d8"
+    tag: "b4abb372e0b2846bc060e2010e4de9e09450d45a"
   externalService: true
   cymbalBranding: false
   # One of: local, gcp, aws, azure, onprem, alibaba. When not set, defaults to "local" unless running in GKE, otherwise auto-sets to gcp.
@@ -137,6 +146,8 @@ loadGenerator:
     limits:
       cpu: 500m
       memory: 512Mi
+  image:
+    tag: b4abb372e0b2846bc060e2010e4de9e09450d45a
 paymentService:
   create: true
   name: paymentservice
@@ -147,6 +158,8 @@ paymentService:
     limits:
       cpu: 200m
       memory: 256Mi
+  image:
+    tag: b4abb372e0b2846bc060e2010e4de9e09450d45a
 productCatalogService:
   create: true
   name: productcatalogservice
@@ -159,6 +172,8 @@ productCatalogService:
     limits:
       cpu: 200m
       memory: 128Mi
+  image:
+    tag: b4abb372e0b2846bc060e2010e4de9e09450d45a
 recommendationService:
   create: true
   name: recommendationservice
@@ -169,6 +184,8 @@ recommendationService:
     limits:
       cpu: 200m
       memory: 450Mi
+  image:
+    tag: b4abb372e0b2846bc060e2010e4de9e09450d45a
 shippingService:
   create: true
   name: shippingservice
@@ -179,6 +196,8 @@ shippingService:
     limits:
       cpu: 200m
       memory: 128Mi
+  image:
+    tag: b4abb372e0b2846bc060e2010e4de9e09450d45a
 cartDatabase:
   # Specifies the type of the cartservice's database, could be either redis or spanner.
   type: redis
@@ -199,4 +218,3 @@ cartDatabase:
 shoppingAssistantService:
   create: false
   name: shoppingassistantservice
-
