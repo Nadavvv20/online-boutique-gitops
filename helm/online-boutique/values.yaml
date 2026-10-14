@@ -116,7 +116,7 @@ frontend:
     replicas: 2
   name: frontend
   image:
-    tag: "b4abb372e0b2846bc060e2010e4de9e09450d45a"
+    tag: "93f2b06004c3aeb8ccaca1cdbce2f99d0ae06820"
   externalService: true
   cymbalBranding: false
   # One of: local, gcp, aws, azure, onprem, alibaba. When not set, defaults to "local" unless running in GKE, otherwise auto-sets to gcp.
