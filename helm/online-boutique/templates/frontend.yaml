@@ -173,6 +173,20 @@ spec:
             value: {{ .Values.shoppingAssistantService.create | quote }}
           - name: ENABLE_SINGLE_SHARED_SESSION
             value: {{ .Values.frontend.singleSharedSession | quote }}
+          - name: REDIS_ADDR
+            value: {{ .Values.cartDatabase.connectionString | quote }}
+          - name: KEYCLOAK_URL
+            value: {{ .Values.keycloak.url | default "" | quote }}
+          - name: KEYCLOAK_REALM
+            value: {{ .Values.keycloak.realm | default "online-boutique" | quote }}
+          - name: KEYCLOAK_CLIENT_ID
+            value: {{ .Values.keycloak.clientId | default "boutique-frontend" | quote }}
+          - name: KEYCLOAK_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: keycloak-credentials
+                key: client-secret
+                optional: true
           resources:
             {{- toYaml .Values.frontend.resources | nindent 12 }}
 ---

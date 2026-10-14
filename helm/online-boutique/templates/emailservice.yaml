@@ -19,7 +19,10 @@ kind: ServiceAccount
 metadata:
   name: {{ .Values.emailService.name }}
   namespace: {{.Release.Namespace}}
-  {{- if not .Values.serviceAccounts.annotationsOnlyForCartservice }}
+  {{- if and .Values.emailService.serviceAccount .Values.emailService.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml .Values.emailService.serviceAccount.annotations | nindent 4 }}
+  {{- else if not .Values.serviceAccounts.annotationsOnlyForCartservice }}
   {{- with .Values.serviceAccounts.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -75,6 +78,14 @@ spec:
         env:
         - name: PORT
           value: "8080"
+        - name: ORDER_EVENTS_QUEUE_URL
+          valueFrom:
+            secretKeyRef:
+              name: sqs-order-events
+              key: queue_url
+              optional: true
+        - name: AWS_REGION
+          value: {{ .Values.sqs.region | default "il-central-1" | quote }}
         {{- if .Values.opentelemetryCollector.create }}
         - name: COLLECTOR_SERVICE_ADDR
           value: "{{ .Values.opentelemetryCollector.name }}:4317"

@@ -1,4 +1,4 @@
-﻿apiVersion: batch/v1
+apiVersion: batch/v1
 kind: Job
 metadata:
   name: db-schema-migration-verifier
@@ -39,27 +39,74 @@ spec:
 
               echo ""
               echo "=========================================================="
-              echo "2. Applying Online Boutique Schema (if not exists)..."
+              echo "2. Applying Online Boutique Schema & Catalog Seed..."
               echo "=========================================================="
               psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" << 'EOF'
-              CREATE TABLE IF NOT EXISTS orders (
-                  order_id VARCHAR(64) PRIMARY KEY,
-                  user_id VARCHAR(64) NOT NULL,
-                  user_currency VARCHAR(8) NOT NULL,
-                  total_cost_units BIGINT NOT NULL,
-                  total_cost_nanos INT NOT NULL,
+              -- Users Table (Keycloak sub UUID)
+              CREATE TABLE IF NOT EXISTS users (
+                  user_id VARCHAR(64) PRIMARY KEY,
+                  email VARCHAR(255) UNIQUE NOT NULL,
+                  name VARCHAR(255),
+                  street_address VARCHAR(255),
+                  city VARCHAR(100),
+                  state VARCHAR(100),
+                  country VARCHAR(100),
+                  zip_code INT,
+                  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+              );
+
+              -- Products Catalog Table
+              CREATE TABLE IF NOT EXISTS products (
+                  id VARCHAR(64) PRIMARY KEY,
+                  name VARCHAR(255) NOT NULL,
+                  description TEXT,
+                  picture VARCHAR(255),
+                  price_usd_units BIGINT NOT NULL,
+                  price_usd_nanos INT NOT NULL,
+                  categories TEXT[] DEFAULT '{}',
                   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
               );
 
+              -- Inventory Ledger (Source of Truth)
+              CREATE TABLE IF NOT EXISTS inventory (
+                  product_id VARCHAR(64) PRIMARY KEY REFERENCES products(id) ON DELETE CASCADE,
+                  total_stock INT NOT NULL DEFAULT 10,
+                  reserved_stock INT NOT NULL DEFAULT 0,
+                  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+              );
+
+              -- Orders Table
+              CREATE TABLE IF NOT EXISTS orders (
+                  order_id VARCHAR(64) PRIMARY KEY,
+                  user_id VARCHAR(64) NOT NULL,
+                  email VARCHAR(255),
+                  user_currency VARCHAR(8) NOT NULL,
+                  total_cost_units BIGINT NOT NULL,
+                  total_cost_nanos INT NOT NULL,
+                  shipping_tracking_id VARCHAR(64),
+                  shipping_cost_units BIGINT,
+                  shipping_cost_nanos INT,
+                  street_address VARCHAR(255),
+                  city VARCHAR(100),
+                  state VARCHAR(100),
+                  country VARCHAR(100),
+                  zip_code INT,
+                  status VARCHAR(32) DEFAULT 'CONFIRMED',
+                  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+              );
+
+              -- Order Items
               CREATE TABLE IF NOT EXISTS order_items (
                   item_id SERIAL PRIMARY KEY,
                   order_id VARCHAR(64) REFERENCES orders(order_id) ON DELETE CASCADE,
-                  product_id VARCHAR(64) NOT NULL,
+                  product_id VARCHAR(64) REFERENCES products(id),
                   quantity INT NOT NULL,
                   cost_units BIGINT NOT NULL,
                   cost_nanos INT NOT NULL
               );
 
+              -- Customers Table (compatibility)
               CREATE TABLE IF NOT EXISTS customers (
                   customer_id VARCHAR(64) PRIMARY KEY,
                   email VARCHAR(255) UNIQUE NOT NULL,
@@ -68,6 +115,39 @@ spec:
 
               CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id);
               CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
+              CREATE INDEX IF NOT EXISTS idx_inventory_product ON inventory(product_id);
+
+              -- Seed Products Catalog
+              INSERT INTO products (id, name, description, picture, price_usd_units, price_usd_nanos, categories) VALUES
+              ('OLJCESPC7Z', 'Sunglasses', 'Add a modern touch to your outfits with these sleek aviator sunglasses.', '/static/img/products/sunglasses.jpg', 19, 990000000, '{"accessories"}'),
+              ('66VCHSJNUP', 'Tank Top', 'Perfectly cropped cotton tank, with a scooped neckline.', '/static/img/products/tank-top.jpg', 18, 990000000, '{"clothing", "tops"}'),
+              ('1YMWWN1N4O', 'Watch', 'This gold-tone stainless steel watch will work with most of your outfits.', '/static/img/products/watch.jpg', 109, 990000000, '{"accessories"}'),
+              ('L9ECAV7KIM', 'Loafers', 'A neat addition to your summer wardrobe.', '/static/img/products/loafers.jpg', 89, 990000000, '{"footwear"}'),
+              ('2ZYFJ3GM2N', 'Hairdryer', 'This lightweight hairdryer has 3 heat and speed settings. It is perfect for travel.', '/static/img/products/hairdryer.jpg', 24, 990000000, '{"hair", "beauty"}'),
+              ('0PUK6V6EV0', 'Candle Holder', 'This small but intricate candle holder is an excellent gift.', '/static/img/products/candle-holder.jpg', 18, 990000000, '{"decor", "home"}'),
+              ('LS4PSXUNUM', 'Salt & Pepper Shakers', 'Add some flavor to your kitchen.', '/static/img/products/salt-and-pepper-shakers.jpg', 18, 490000000, '{"kitchen"}'),
+              ('9SIQT8TOJO', 'Bamboo Glass Jar', 'This bamboo glass jar can hold 57 oz (1.7 l) and is perfect for any kitchen.', '/static/img/products/bamboo-glass-jar.jpg', 5, 490000000, '{"kitchen"}'),
+              ('6E92ZMYYFZ', 'Mug', 'A simple mug with a mustard interior.', '/static/img/products/mug.jpg', 8, 990000000, '{"kitchen"}')
+              ON CONFLICT (id) DO UPDATE SET
+                  name = EXCLUDED.name,
+                  description = EXCLUDED.description,
+                  picture = EXCLUDED.picture,
+                  price_usd_units = EXCLUDED.price_usd_units,
+                  price_usd_nanos = EXCLUDED.price_usd_nanos,
+                  categories = EXCLUDED.categories;
+
+              -- Seed Inventory (10 units each)
+              INSERT INTO inventory (product_id, total_stock, reserved_stock) VALUES
+              ('OLJCESPC7Z', 10, 0),
+              ('66VCHSJNUP', 10, 0),
+              ('1YMWWN1N4O', 10, 0),
+              ('L9ECAV7KIM', 10, 0),
+              ('2ZYFJ3GM2N', 10, 0),
+              ('0PUK6V6EV0', 10, 0),
+              ('LS4PSXUNUM', 10, 0),
+              ('9SIQT8TOJO', 10, 0),
+              ('6E92ZMYYFZ', 10, 0)
+              ON CONFLICT (product_id) DO NOTHING;
               EOF
 
               echo ""
@@ -75,28 +155,23 @@ spec:
               echo "3. Verifying Migrated Tables..."
               echo "=========================================================="
               psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "\dt"
-              
-              echo ""
-              echo "=========================================================="
-              echo "4. Table Schema Details:"
-              echo "=========================================================="
-              psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "\d orders"
-              psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "\d order_items"
-              psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "\d customers"
 
               echo ""
               echo "=========================================================="
-              echo "5. Row Counts & Health Check:"
+              echo "4. Row Counts & Health Check:"
               echo "=========================================================="
               psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "
-              SELECT
-                  'orders' AS table_name, count(*) AS row_count FROM orders
+              SELECT 'users' AS table_name, count(*) AS row_count FROM users
               UNION ALL
-              SELECT
-                  'order_items' AS table_name, count(*) AS row_count FROM order_items
+              SELECT 'products' AS table_name, count(*) AS row_count FROM products
               UNION ALL
-              SELECT
-                  'customers' AS table_name, count(*) AS row_count FROM customers;
+              SELECT 'inventory' AS table_name, count(*) AS row_count FROM inventory
+              UNION ALL
+              SELECT 'orders' AS table_name, count(*) AS row_count FROM orders
+              UNION ALL
+              SELECT 'order_items' AS table_name, count(*) AS row_count FROM order_items
+              UNION ALL
+              SELECT 'customers' AS table_name, count(*) AS row_count FROM customers;
               "
               echo ""
-              echo "SUCCESS: Database migration and verification completed successfully!"
+              echo "SUCCESS: Database migration, seeding, and verification completed successfully!"

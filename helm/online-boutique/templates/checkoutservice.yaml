@@ -19,7 +19,10 @@ kind: ServiceAccount
 metadata:
   name: {{ .Values.checkoutService.name }}
   namespace: {{.Release.Namespace}}
-  {{- if not .Values.serviceAccounts.annotationsOnlyForCartservice }}
+  {{- if and .Values.checkoutService.serviceAccount .Values.checkoutService.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml .Values.checkoutService.serviceAccount.annotations | nindent 4 }}
+  {{- else if not .Values.serviceAccounts.annotationsOnlyForCartservice }}
   {{- with .Values.serviceAccounts.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -92,6 +95,46 @@ spec:
           value: "{{ .Values.currencyService.name }}:7000"
         - name: CART_SERVICE_ADDR
           value: "{{ .Values.cartService.name }}:7070"
+        - name: INVENTORY_SERVICE_ADDR
+          value: "{{ .Values.inventoryService.name }}:7070"
+        - name: ORDER_EVENTS_QUEUE_URL
+          valueFrom:
+            secretKeyRef:
+              name: sqs-order-events
+              key: queue_url
+              optional: true
+        - name: AWS_REGION
+          value: {{ .Values.sqs.region | default "il-central-1" | quote }}
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: aurora-credentials
+              key: DB_HOST
+              optional: true
+        - name: DB_PORT
+          valueFrom:
+            secretKeyRef:
+              name: aurora-credentials
+              key: DB_PORT
+              optional: true
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: aurora-credentials
+              key: DB_NAME
+              optional: true
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: aurora-credentials
+              key: DB_USER
+              optional: true
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: aurora-credentials
+              key: DB_PASSWORD
+              optional: true
         {{- if .Values.opentelemetryCollector.create }}
         - name: COLLECTOR_SERVICE_ADDR
           value: "{{ .Values.opentelemetryCollector.name }}:4317"

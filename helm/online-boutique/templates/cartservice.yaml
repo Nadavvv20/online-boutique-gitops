@@ -83,6 +83,10 @@ spec:
         - name: REDIS_ADDR
         {{- end }}
           value: {{ .Values.cartDatabase.connectionString | quote }}
+        - name: INVENTORY_SERVICE_ADDR
+          value: "{{ .Values.inventoryService.name }}:7070"
+        - name: REDIS_TTL_MINUTES
+          value: "15"
         resources:
           {{- toYaml .Values.cartService.resources | nindent 10 }}
         readinessProbe:
