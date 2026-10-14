@@ -84,7 +84,7 @@ checkoutService:
       cpu: 200m
       memory: 128Mi
   image:
-    tag: b4abb372e0b2846bc060e2010e4de9e09450d45a
+    tag: 93f2b06004c3aeb8ccaca1cdbce2f99d0ae06820
 currencyService:
   create: true
   name: currencyservice
@@ -221,7 +221,6 @@ cartDatabase:
 shoppingAssistantService:
   create: false
   name: shoppingassistantservice
-
 inventoryService:
   create: true
   name: inventoryservice
@@ -236,10 +235,8 @@ inventoryService:
     tag: b4abb372e0b2846bc060e2010e4de9e09450d45a
   serviceAccount:
     annotations: {}
-
 sqs:
   region: "il-central-1"
-
 keycloak:
   enabled: true
   url: "" # defaults to ALB /auth if blank
