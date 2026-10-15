@@ -175,6 +175,10 @@ spec:
             value: {{ .Values.frontend.singleSharedSession | quote }}
           - name: REDIS_ADDR
             value: {{ .Values.cartDatabase.connectionString | quote }}
+          - name: INVENTORY_SERVICE_ADDR
+            value: "{{ .Values.inventoryService.name }}:7070"
+          - name: COOKIE_SECURE
+            value: {{ .Values.frontend.cookieSecure | default "false" | quote }}
           - name: KEYCLOAK_URL
             value: {{ .Values.keycloak.url | default "" | quote }}
           - name: KEYCLOAK_REALM
