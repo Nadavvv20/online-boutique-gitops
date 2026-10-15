@@ -112,6 +112,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.inventoryService.name }}
+    app.kubernetes.io/part-of: online-boutique
+    monitoring: "true"
 spec:
   type: ClusterIP
   selector:
@@ -120,4 +122,7 @@ spec:
   - name: grpc
     port: 7070
     targetPort: 7070
+  - name: metrics
+    port: 9090
+    targetPort: 9090
 {{- end }}

@@ -119,7 +119,7 @@ frontend:
     tag: "93f2b06004c3aeb8ccaca1cdbce2f99d0ae06820"
   externalService: true
   cymbalBranding: false
-  cookieSecure: false
+  cookieSecure: true
   # One of: local, gcp, aws, azure, onprem, alibaba. When not set, defaults to "local" unless running in GKE, otherwise auto-sets to gcp.
   platform: local
   singleSharedSession: false

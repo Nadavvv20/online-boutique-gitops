@@ -86,6 +86,8 @@ spec:
               optional: true
         - name: AWS_REGION
           value: {{ .Values.sqs.region | default "il-central-1" | quote }}
+        - name: REDIS_ADDR
+          value: {{ .Values.cartDatabase.connectionString | quote }}
         {{- if .Values.opentelemetryCollector.create }}
         - name: COLLECTOR_SERVICE_ADDR
           value: "{{ .Values.opentelemetryCollector.name }}:4317"

@@ -7,3 +7,8 @@ loadGenerator:
 
 frontend:
   externalService: false
+
+
+frontend:
+  cookieSecure: false
+
