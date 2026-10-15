@@ -1,4 +1,4 @@
-﻿# Copyright 2024 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -81,8 +81,8 @@ spec:
         - name: ORDER_EVENTS_QUEUE_URL
           valueFrom:
             secretKeyRef:
-              name: sqs-order-events
-              key: queue_url
+              name: sqs-config
+              key: ORDER_EVENTS_EMAIL_URL
               optional: true
         - name: AWS_REGION
           value: {{ .Values.sqs.region | default "il-central-1" | quote }}

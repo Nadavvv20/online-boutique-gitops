@@ -1,4 +1,4 @@
-﻿# Copyright 2024 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -97,11 +97,11 @@ spec:
           value: "{{ .Values.cartService.name }}:7070"
         - name: INVENTORY_SERVICE_ADDR
           value: "{{ .Values.inventoryService.name }}:7070"
-        - name: ORDER_EVENTS_QUEUE_URL
+        - name: ORDER_EVENTS_TOPIC_ARN
           valueFrom:
             secretKeyRef:
-              name: sqs-order-events
-              key: queue_url
+              name: sqs-config
+              key: ORDER_EVENTS_TOPIC_ARN
               optional: true
         - name: AWS_REGION
           value: {{ .Values.sqs.region | default "il-central-1" | quote }}
