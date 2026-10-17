@@ -4,7 +4,7 @@ env: dev
 # =========================================================
 
 loadGenerator:
-  create: true
+  create: false
 
 frontend:
   externalService: false
