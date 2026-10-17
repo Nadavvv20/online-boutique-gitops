@@ -175,12 +175,26 @@ spec:
             value: {{ .Values.frontend.singleSharedSession | quote }}
           - name: REDIS_ADDR
             value: {{ .Values.cartDatabase.connectionString | quote }}
+          - name: REDIS_AUTH
+            valueFrom:
+              secretKeyRef:
+                name: redis-credentials
+                key: REDIS_AUTH
+                optional: true
+          - name: REDIS_USE_TLS
+            value: "true"
           - name: INVENTORY_SERVICE_ADDR
             value: "{{ .Values.inventoryService.name }}:7070"
+          - name: ENV
+            value: {{ .Values.env | default "dev" | quote }}
           - name: COOKIE_SECURE
             value: {{ .Values.frontend.cookieSecure | default "false" | quote }}
+          - name: NUM_TRUSTED_PROXIES
+            value: {{ .Values.frontend.numTrustedProxies | default "1" | quote }}
           - name: KEYCLOAK_URL
             value: {{ .Values.keycloak.url | default "" | quote }}
+          - name: KEYCLOAK_INTERNAL_URL
+            value: {{ .Values.keycloak.internalUrl | default "http://keycloak.keycloak.svc.cluster.local/auth" | quote }}
           - name: KEYCLOAK_REALM
             value: {{ .Values.keycloak.realm | default "online-boutique" | quote }}
           - name: KEYCLOAK_CLIENT_ID

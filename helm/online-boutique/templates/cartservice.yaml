@@ -79,10 +79,25 @@ spec:
         env:
         {{- if eq .Values.cartDatabase.type "spanner" }}
         - name: SPANNER_CONNECTION_STRING
+          value: {{ .Values.cartDatabase.connectionString | quote }}
         {{- else }}
         - name: REDIS_ADDR
-        {{- end }}
           value: {{ .Values.cartDatabase.connectionString | quote }}
+        - name: CART_REDIS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: CART_REDIS_CONNECTION_STRING
+              optional: true
+        - name: REDIS_AUTH
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: REDIS_AUTH
+              optional: true
+        - name: REDIS_USE_TLS
+          value: "true"
+        {{- end }}
         - name: INVENTORY_SERVICE_ADDR
           value: "{{ .Values.inventoryService.name }}:7070"
         - name: REDIS_TTL_MINUTES

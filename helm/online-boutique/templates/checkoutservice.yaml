@@ -135,6 +135,22 @@ spec:
               name: aurora-credentials
               key: DB_PASSWORD
               optional: true
+        - name: DB_SSLMODE
+          valueFrom:
+            secretKeyRef:
+              name: aurora-credentials
+              key: DB_SSLMODE
+              optional: true
+        - name: REDIS_ADDR
+          value: {{ .Values.cartDatabase.connectionString | quote }}
+        - name: REDIS_AUTH
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: REDIS_AUTH
+              optional: true
+        - name: REDIS_USE_TLS
+          value: "true"
         {{- if .Values.opentelemetryCollector.create }}
         - name: COLLECTOR_SERVICE_ADDR
           value: "{{ .Values.opentelemetryCollector.name }}:4317"

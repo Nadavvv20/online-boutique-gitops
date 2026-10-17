@@ -1,3 +1,4 @@
+env: dev
 # Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -120,6 +121,7 @@ frontend:
   externalService: true
   cymbalBranding: false
   cookieSecure: true
+  numTrustedProxies: 1
   # One of: local, gcp, aws, azure, onprem, alibaba. When not set, defaults to "local" unless running in GKE, otherwise auto-sets to gcp.
   platform: local
   singleSharedSession: false
@@ -241,5 +243,6 @@ sqs:
 keycloak:
   enabled: true
   url: "" # defaults to ALB /auth if blank
+  internalUrl: "http://keycloak.keycloak.svc.cluster.local/auth"
   realm: "online-boutique"
   clientId: "boutique-frontend"

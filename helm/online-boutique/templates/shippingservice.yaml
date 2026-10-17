@@ -87,6 +87,14 @@ spec:
           value: {{ .Values.sqs.region | default "il-central-1" | quote }}
         - name: REDIS_ADDR
           value: {{ .Values.cartDatabase.connectionString | quote }}
+        - name: REDIS_AUTH
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: REDIS_AUTH
+              optional: true
+        - name: REDIS_USE_TLS
+          value: "true"
         {{- if not .Values.googleCloudOperations.profiler }}
         - name: DISABLE_PROFILER
           value: "1"
