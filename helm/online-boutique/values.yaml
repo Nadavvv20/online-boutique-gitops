@@ -179,7 +179,7 @@ productCatalogService:
       cpu: 200m
       memory: 128Mi
   image:
-    tag: 93f2b06004c3aeb8ccaca1cdbce2f99d0ae06820
+    tag: d152816249e842676efabb2a52212bc5886f140d
 recommendationService:
   create: true
   name: recommendationservice
@@ -203,7 +203,7 @@ shippingService:
       cpu: 200m
       memory: 128Mi
   image:
-    tag: 93f2b06004c3aeb8ccaca1cdbce2f99d0ae06820
+    tag: d152816249e842676efabb2a52212bc5886f140d
 cartDatabase:
   # Specifies the type of the cartservice's database, could be either redis or spanner.
   type: redis
