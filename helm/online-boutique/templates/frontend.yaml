@@ -174,7 +174,11 @@ spec:
           - name: ENABLE_SINGLE_SHARED_SESSION
             value: {{ .Values.frontend.singleSharedSession | quote }}
           - name: REDIS_ADDR
-            value: {{ .Values.cartDatabase.connectionString | quote }}
+            valueFrom:
+              secretKeyRef:
+                name: redis-credentials
+                key: REDIS_ADDR
+                optional: true
           - name: REDIS_AUTH
             valueFrom:
               secretKeyRef:

@@ -87,7 +87,11 @@ spec:
         - name: AWS_REGION
           value: {{ .Values.sqs.region | default "il-central-1" | quote }}
         - name: REDIS_ADDR
-          value: {{ .Values.cartDatabase.connectionString | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: REDIS_ADDR
+              optional: true
         - name: REDIS_AUTH
           valueFrom:
             secretKeyRef:

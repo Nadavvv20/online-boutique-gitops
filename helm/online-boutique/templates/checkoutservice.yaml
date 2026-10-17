@@ -142,7 +142,11 @@ spec:
               key: DB_SSLMODE
               optional: true
         - name: REDIS_ADDR
-          value: {{ .Values.cartDatabase.connectionString | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: REDIS_ADDR
+              optional: true
         - name: REDIS_AUTH
           valueFrom:
             secretKeyRef:

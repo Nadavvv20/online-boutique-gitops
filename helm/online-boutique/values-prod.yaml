@@ -13,3 +13,7 @@ frontend:
 frontend:
   cookieSecure: true
 
+
+cartDatabase:
+  inClusterRedis:
+    create: false

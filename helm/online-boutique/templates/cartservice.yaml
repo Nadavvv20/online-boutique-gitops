@@ -1,4 +1,4 @@
-﻿# Copyright 2024 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -82,7 +82,11 @@ spec:
           value: {{ .Values.cartDatabase.connectionString | quote }}
         {{- else }}
         - name: REDIS_ADDR
-          value: {{ .Values.cartDatabase.connectionString | quote }}
+          valueFrom:
+            secretKeyRef:
+              name: redis-credentials
+              key: REDIS_ADDR
+              optional: true
         - name: CART_REDIS_CONNECTION_STRING
           valueFrom:
             secretKeyRef:
