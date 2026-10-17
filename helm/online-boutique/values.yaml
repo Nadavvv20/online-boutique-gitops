@@ -61,7 +61,7 @@ adService:
       cpu: 300m
       memory: 300Mi
   image:
-    tag: b4abb372e0b2846bc060e2010e4de9e09450d45a
+    tag: 2ba03ef2e93711d662904d7169d65036d7f1986d
 cartService:
   create: true
   name: cartservice
@@ -73,7 +73,7 @@ cartService:
       cpu: 300m
       memory: 256Mi
   image:
-    tag: 93f2b06004c3aeb8ccaca1cdbce2f99d0ae06820
+    tag: 2ba03ef2e93711d662904d7169d65036d7f1986d
 checkoutService:
   create: true
   name: checkoutservice
@@ -85,7 +85,7 @@ checkoutService:
       cpu: 200m
       memory: 128Mi
   image:
-    tag: 93f2b06004c3aeb8ccaca1cdbce2f99d0ae06820
+    tag: 2ba03ef2e93711d662904d7169d65036d7f1986d
 currencyService:
   create: true
   name: currencyservice
@@ -97,7 +97,7 @@ currencyService:
       cpu: 200m
       memory: 256Mi
   image:
-    tag: b4abb372e0b2846bc060e2010e4de9e09450d45a
+    tag: 2ba03ef2e93711d662904d7169d65036d7f1986d
 emailService:
   create: true
   name: emailservice
@@ -109,7 +109,7 @@ emailService:
       cpu: 200m
       memory: 128Mi
   image:
-    tag: 93f2b06004c3aeb8ccaca1cdbce2f99d0ae06820
+    tag: 2ba03ef2e93711d662904d7169d65036d7f1986d
 frontend:
   create: true
   rollout:
@@ -117,7 +117,7 @@ frontend:
     replicas: 2
   name: frontend
   image:
-    tag: "93f2b06004c3aeb8ccaca1cdbce2f99d0ae06820"
+    tag: "2ba03ef2e93711d662904d7169d65036d7f1986d"
   externalService: true
   cymbalBranding: false
   cookieSecure: true
@@ -153,7 +153,7 @@ loadGenerator:
       cpu: 500m
       memory: 512Mi
   image:
-    tag: b4abb372e0b2846bc060e2010e4de9e09450d45a
+    tag: 2ba03ef2e93711d662904d7169d65036d7f1986d
 paymentService:
   create: true
   name: paymentservice
@@ -165,7 +165,7 @@ paymentService:
       cpu: 200m
       memory: 256Mi
   image:
-    tag: b4abb372e0b2846bc060e2010e4de9e09450d45a
+    tag: 2ba03ef2e93711d662904d7169d65036d7f1986d
 productCatalogService:
   create: true
   name: productcatalogservice
@@ -179,7 +179,7 @@ productCatalogService:
       cpu: 200m
       memory: 128Mi
   image:
-    tag: d152816249e842676efabb2a52212bc5886f140d
+    tag: 2ba03ef2e93711d662904d7169d65036d7f1986d
 recommendationService:
   create: true
   name: recommendationservice
@@ -191,7 +191,7 @@ recommendationService:
       cpu: 200m
       memory: 450Mi
   image:
-    tag: b4abb372e0b2846bc060e2010e4de9e09450d45a
+    tag: 2ba03ef2e93711d662904d7169d65036d7f1986d
 shippingService:
   create: true
   name: shippingservice
@@ -203,7 +203,7 @@ shippingService:
       cpu: 200m
       memory: 128Mi
   image:
-    tag: d152816249e842676efabb2a52212bc5886f140d
+    tag: 2ba03ef2e93711d662904d7169d65036d7f1986d
 cartDatabase:
   # Specifies the type of the cartservice's database, could be either redis or spanner.
   type: redis
@@ -235,7 +235,7 @@ inventoryService:
       cpu: 200m
       memory: 128Mi
   image:
-    tag: 93f2b06004c3aeb8ccaca1cdbce2f99d0ae06820
+    tag: 2ba03ef2e93711d662904d7169d65036d7f1986d
   serviceAccount:
     annotations: {}
 sqs:
