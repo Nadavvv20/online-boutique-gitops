@@ -153,7 +153,7 @@ loadGenerator:
       cpu: 500m
       memory: 512Mi
   image:
-    tag: 2ba03ef2e93711d662904d7169d65036d7f1986d
+    tag: c213b5c69e5987c918f9aed1fcdc3c6554be7658
 paymentService:
   create: true
   name: paymentservice
@@ -246,7 +246,6 @@ keycloak:
   internalUrl: "http://keycloak.keycloak.svc.cluster.local/auth"
   realm: "online-boutique"
   clientId: "boutique-frontend"
-
 # -----------------------------------------------------------------------------
 # Autoscaling (HPA) Configuration for SRE & Performance Engineering
 # -----------------------------------------------------------------------------
