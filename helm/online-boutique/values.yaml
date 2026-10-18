@@ -246,3 +246,31 @@ keycloak:
   internalUrl: "http://keycloak.keycloak.svc.cluster.local/auth"
   realm: "online-boutique"
   clientId: "boutique-frontend"
+
+# -----------------------------------------------------------------------------
+# Autoscaling (HPA) Configuration for SRE & Performance Engineering
+# -----------------------------------------------------------------------------
+autoscaling:
+  enabled: true
+  services:
+    frontend:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 65
+    cartservice:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 8
+      targetCPUUtilizationPercentage: 65
+      targetMemoryUtilizationPercentage: 80
+    checkoutservice:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 8
+      targetCPUUtilizationPercentage: 65
+    productcatalogservice:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 6
+      targetCPUUtilizationPercentage: 65
