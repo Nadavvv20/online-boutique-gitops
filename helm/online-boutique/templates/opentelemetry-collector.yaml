@@ -18,7 +18,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ .Values.opentelemetryCollector.name }}
-  namespace: {{.Release.Namespace}}
+  namespace: {{ .Release.Namespace }}
   {{- if not .Values.serviceAccounts.annotationsOnlyForCartservice }}
   {{- with .Values.serviceAccounts.annotations }}
   annotations:
@@ -41,6 +41,7 @@ spec:
     metadata:
       labels:
         app: {{ .Values.opentelemetryCollector.name }}
+        app.kubernetes.io/part-of: online-boutique
     spec:
       {{- if .Values.serviceAccounts.create }}
       serviceAccountName: {{ .Values.opentelemetryCollector.name }}
@@ -58,34 +59,7 @@ spec:
           type: {{ .Values.seccompProfile.type }}
         {{- end }}
       {{- end }}
-      {{- if eq .Values.opentelemetryCollector.projectId "PROJECT_ID" }}
-      initContainers:
-      # Init container retrieves the current cloud project id from the metadata server
-      # and inserts it into the collector config template
-      # https://cloud.google.com/compute/docs/storing-retrieving-metadata
-      - name: otel-gateway-init
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-              - ALL
-          privileged: false
-          readOnlyRootFilesystem: true
-        image: busybox:1.38.0@sha256:dc2d74b28e4cf8984fa52af1f39bc7c3d9c73760b41a74d629f5d11b1ab28616
-        command:
-        - '/bin/sh'
-        - '-c'
-        - |
-           sed "s/PROJECT_ID/$(curl -H 'Metadata-Flavor: Google' http://metadata.google.internal/computeMetadata/v1/project/project-id)/" /template/collector-gateway-config-template.yaml >> /conf/collector-gateway-config.yaml
-        volumeMounts:
-        - name: collector-gateway-config-template
-          mountPath: /template
-        - name: collector-gateway-config
-          mountPath: /conf
-      {{- end }}
       containers:
-      # This gateway container will receive traces and metrics from each microservice
-      # and forward it to GCP
       - name: otel-gateway
         securityContext:
           allowPrivilegeEscalation: false
@@ -97,32 +71,44 @@ spec:
         args:
         - --config=/conf/collector-gateway-config.yaml
         image: otel/opentelemetry-collector-contrib:0.160.0@sha256:799dc6cf12c96192af37b5bdba804da8c10b3bc563b43cb90c3f3c58d9572ad6
+        ports:
+        - name: grpc-otlp
+          containerPort: 4317
+        - name: http-otlp
+          containerPort: 4318
+        - name: metrics
+          containerPort: 8889
         volumeMounts:
         - name: collector-gateway-config
           mountPath: /conf
       volumes:
-      # Simple ConfigMap volume with template file
-      - name: collector-gateway-config-template
-        configMap:
-          items:
-          - key: collector-gateway-config-template.yaml
-            path: collector-gateway-config-template.yaml
-          name: collector-gateway-config-template
-      # Create a volume to store the expanded template (with correct cloud project ID)
       - name: collector-gateway-config
-        emptyDir: {}
+        configMap:
+          name: collector-gateway-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.opentelemetryCollector.name }}
   namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.opentelemetryCollector.name }}
+    app.kubernetes.io/part-of: online-boutique
+    monitoring: "true"
 spec:
   ports:
   - name: grpc-otlp
     port: 4317
     protocol: TCP
     targetPort: 4317
+  - name: http-otlp
+    port: 4318
+    protocol: TCP
+    targetPort: 4318
+  - name: metrics
+    port: 8889
+    protocol: TCP
+    targetPort: 8889
   selector:
     app: {{ .Values.opentelemetryCollector.name }}
   type: ClusterIP
@@ -130,30 +116,44 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: collector-gateway-config-template
+  name: collector-gateway-config
   namespace: {{ .Release.Namespace }}
-# Open Telemetry Collector config
-# https://opentelemetry.io/docs/collector/configuration/
+  labels:
+    app: {{ .Values.opentelemetryCollector.name }}
+    app.kubernetes.io/part-of: online-boutique
 data:
-  collector-gateway-config-template.yaml: |
+  collector-gateway-config.yaml: |
     receivers:
       otlp:
-        protocols: 
+        protocols:
           grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
     processors:
+      batch:
+        timeout: 1s
+        send_batch_size: 256
+      memory_limiter:
+        check_interval: 1s
+        limit_percentage: 75
+        spike_limit_percentage: 20
     exporters:
-      googlecloud:
-        project: {{ .Values.opentelemetryCollector.projectId | quote }}
+      prometheus:
+        endpoint: "0.0.0.0:8889"
+        namespace: "online_boutique"
+      debug:
+        verbosity: basic
     service:
       pipelines:
         traces:
-          receivers: [otlp] # Receive otlp-formatted data from other collector instances
-          processors: []
-          exporters: [googlecloud] # Export traces directly to Google Cloud
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [debug]
         metrics:
           receivers: [otlp]
-          processors: []
-          exporters: [googlecloud] # Export metrics to Google Cloud
+          processors: [memory_limiter, batch]
+          exporters: [prometheus, debug]
 {{- if .Values.networkPolicies.create }}
 ---
 apiVersion: networking.k8s.io/v1
@@ -169,94 +169,14 @@ spec:
   - Ingress
   - Egress
   ingress:
-  - from:
-    - podSelector:
-        matchLabels:
-          app: {{ .Values.adService.name }}
-    - podSelector:
-        matchLabels:
-          app: {{ .Values.cartService.name }}
-    - podSelector:
-        matchLabels:
-          app: {{ .Values.checkoutService.name }}
-    - podSelector:
-        matchLabels:
-          app: {{ .Values.currencyService.name }}
-    - podSelector:
-        matchLabels:
-          app: {{ .Values.emailService.name }}
-    - podSelector:
-        matchLabels:
-          app: {{ .Values.frontend.name }}
-    - podSelector:
-        matchLabels:
-          app: {{ .Values.loadGenerator.name }}
-    - podSelector:
-        matchLabels:
-          app: {{ .Values.paymentService.name }}
-    - podSelector:
-        matchLabels:
-          app: {{ .Values.productCatalogService.name }}
-    - podSelector:
-        matchLabels:
-          app: {{ .Values.recommendationService.name }}
-    - podSelector:
-        matchLabels:
-          app: {{ .Values.shippingService.name }}
-    ports:
+  - ports:
      - port: 4317
+       protocol: TCP
+     - port: 4318
+       protocol: TCP
+     - port: 8889
        protocol: TCP
   egress:
   - {}
-{{- end }}
-{{- if .Values.sidecars.create }}
----
-apiVersion: networking.istio.io/v1beta1
-kind: Sidecar
-metadata:
-  name: {{ .Values.opentelemetryCollector.name }}
-  namespace: {{ .Release.Namespace }}
-spec:
-  workloadSelector:
-    labels:
-      app: {{ .Values.opentelemetryCollector.name }}
-  egress:
-  - hosts:
-    - istio-system/*
-{{- end }}
-{{- if .Values.authorizationPolicies.create }}
----
-apiVersion: security.istio.io/v1beta1
-kind: AuthorizationPolicy
-metadata:
-  name: {{ .Values.opentelemetryCollector.name }}
-  namespace: {{ .Release.Namespace }}
-spec:
-  selector:
-    matchLabels:
-      app: {{ .Values.opentelemetryCollector.name }}
-  rules:
-  - from:
-    - source:
-        principals:
-        {{- if .Values.serviceAccounts.create }}
-        - cluster.local/ns/{{ .Release.Namespace }}/sa/{{ .Values.adService.name }}
-        - cluster.local/ns/{{ .Release.Namespace }}/sa/{{ .Values.cartService.name }}
-        - cluster.local/ns/{{ .Release.Namespace }}/sa/{{ .Values.checkoutService.name }}
-        - cluster.local/ns/{{ .Release.Namespace }}/sa/{{ .Values.currencyService.name }}
-        - cluster.local/ns/{{ .Release.Namespace }}/sa/{{ .Values.emailService.name }}
-        - cluster.local/ns/{{ .Release.Namespace }}/sa/{{ .Values.frontend.name }}
-        - cluster.local/ns/{{ .Release.Namespace }}/sa/{{ .Values.loadGenerator.name }}
-        - cluster.local/ns/{{ .Release.Namespace }}/sa/{{ .Values.paymentService.name }}
-        - cluster.local/ns/{{ .Release.Namespace }}/sa/{{ .Values.productCatalogService.name }}
-        - cluster.local/ns/{{ .Release.Namespace }}/sa/{{ .Values.recommendationService.name }}
-        - cluster.local/ns/{{ .Release.Namespace }}/sa/{{ .Values.shippingService.name }}
-        {{- else }}
-        - cluster.local/ns/{{ .Release.Namespace }}/sa/default
-        {{- end }}
-    to:
-    - operation:
-        ports:
-        - "4317"
 {{- end }}
 {{- end }}
