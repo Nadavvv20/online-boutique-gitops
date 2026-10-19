@@ -1,4 +1,4 @@
-﻿{{- if and .Values.frontend.rollout .Values.frontend.rollout.enabled }}
+{{- if and .Values.frontend.rollout .Values.frontend.rollout.enabled }}
 apiVersion: argoproj.io/v1alpha1
 kind: AnalysisTemplate
 metadata:
@@ -10,7 +10,7 @@ spec:
       interval: 30s
       count: 3
       failureLimit: 1
-      successCondition: len(result) == 0 || result[0] <= 0.02
+      successCondition: len(result) == 0 || isNaN(result[0]) || result[0] <= 0.02
       provider:
         prometheus:
           address: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
@@ -32,13 +32,15 @@ spec:
       interval: 30s
       count: 3
       failureLimit: 1
-      successCondition: len(result) == 0 || result[0] <= 0.500
+      successCondition: len(result) == 0 || isNaN(result[0]) || result[0] <= 0.500
       provider:
         prometheus:
           address: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
           query: |
-            histogram_quantile(
-              0.95,
-              sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{exported_service="frontend"}[2m])) by (le)
+            (
+              histogram_quantile(
+                0.95,
+                sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{exported_service="frontend"}[2m])) by (le)
+              ) > 0
             ) or on() vector(0.05)
 {{- end }}
