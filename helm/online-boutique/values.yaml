@@ -153,7 +153,7 @@ loadGenerator:
       cpu: 500m
       memory: 512Mi
   image:
-    tag: c213b5c69e5987c918f9aed1fcdc3c6554be7658
+    tag: b8948f4fc69a4b4e1a6bd9dbf80a76b7a862170c
 paymentService:
   create: true
   name: paymentservice
