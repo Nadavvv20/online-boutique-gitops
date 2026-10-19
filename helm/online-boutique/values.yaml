@@ -63,7 +63,7 @@ adService:
       cpu: 300m
       memory: 300Mi
   image:
-    tag: 58298a90fa60e5989214e4fc76462441474683a7
+    tag: ae5614d6f1238059a9f3b44a8a2c7fe947ebc5c4
 cartService:
   create: true
   name: cartservice
@@ -119,7 +119,7 @@ frontend:
     replicas: 2
   name: frontend
   image:
-    tag: "58298a90fa60e5989214e4fc76462441474683a7"
+    tag: "ae5614d6f1238059a9f3b44a8a2c7fe947ebc5c4"
   externalService: true
   cymbalBranding: false
   cookieSecure: true
