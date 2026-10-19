@@ -94,7 +94,7 @@ currencyService:
       cpu: 100m
       memory: 128Mi
     limits:
-      cpu: 200m
+      cpu: 300m
       memory: 256Mi
   image:
     tag: 2ba03ef2e93711d662904d7169d65036d7f1986d
@@ -139,7 +139,7 @@ frontend:
       cpu: 100m
       memory: 64Mi
     limits:
-      cpu: 200m
+      cpu: 400m
       memory: 128Mi
 loadGenerator:
   create: true
@@ -188,7 +188,7 @@ recommendationService:
       cpu: 100m
       memory: 220Mi
     limits:
-      cpu: 200m
+      cpu: 300m
       memory: 450Mi
   image:
     tag: 2ba03ef2e93711d662904d7169d65036d7f1986d
@@ -254,9 +254,9 @@ autoscaling:
   services:
     frontend:
       enabled: true
-      minReplicas: 2
-      maxReplicas: 10
-      targetCPUUtilizationPercentage: 65
+      minReplicas: 4
+      maxReplicas: 16
+      targetCPUUtilizationPercentage: 50
     cartservice:
       enabled: true
       minReplicas: 2
@@ -271,5 +271,15 @@ autoscaling:
     productcatalogservice:
       enabled: true
       minReplicas: 2
+      maxReplicas: 8
+      targetCPUUtilizationPercentage: 50
+    currencyservice:
+      enabled: true
+      minReplicas: 2
       maxReplicas: 6
-      targetCPUUtilizationPercentage: 65
+      targetCPUUtilizationPercentage: 60
+    recommendationservice:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 6
+      targetCPUUtilizationPercentage: 60

@@ -6,8 +6,8 @@ env: prod
 loadGenerator:
   create: true
   frontendAddr: "a8e79013e19f04d15a0bdb9245e36678-297180001.il-central-1.elb.amazonaws.com:80"
-  users: "150"
-  rate: "15"
+  users: "250"
+  rate: "25"
 
 frontend:
   externalService: false
