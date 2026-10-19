@@ -119,7 +119,7 @@ frontend:
     replicas: 2
   name: frontend
   image:
-    tag: "ae5614d6f1238059a9f3b44a8a2c7fe947ebc5c4"
+    tag: "4f47f0985693d6aae7d4d5339140df8d8e367c10"
   externalService: true
   cymbalBranding: false
   cookieSecure: true
