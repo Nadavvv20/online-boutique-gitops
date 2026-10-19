@@ -109,11 +109,11 @@ spec:
         image: {{ dig "image" "repository" .Values.images.repository .Values.loadGenerator }}/{{ .Values.loadGenerator.name }}:{{ dig "image" "tag" (.Values.images.tag | default .Chart.AppVersion) .Values.loadGenerator }}
         env:
         - name: FRONTEND_ADDR
-          value: "{{ .Values.frontend.name }}:80"
+          value: {{ .Values.loadGenerator.frontendAddr | default (printf "%s:80" .Values.frontend.name) | quote }}
         - name: USERS
-          value: "10"
+          value: {{ .Values.loadGenerator.users | default "10" | quote }}
         - name: RATE
-          value: "1"
+          value: {{ .Values.loadGenerator.rate | default "1" | quote }}
         resources:
           {{- toYaml .Values.loadGenerator.resources | nindent 10 }}
 {{- if .Values.networkPolicies.create }}
