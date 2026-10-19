@@ -53,6 +53,8 @@ securityContext:
 adService:
   create: true
   name: adservice
+  catalogUrl: "https://dxjakg4tai6vn.cloudfront.net/ads.json"
+  cdnBaseUrl: "https://dxjakg4tai6vn.cloudfront.net"
   resources:
     requests:
       cpu: 200m
